@@ -1,65 +1,100 @@
 using Microsoft.EntityFrameworkCore;
 using app_Fh_back.Data;
+using app_Fh_back.Models;
 using Microsoft.AspNetCore.Identity;
-//using app_Fh_back.Models;
+using Scalar.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using app_Fh_back.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// Controladores
+builder.Services.AddControllers();
+
+// OpenAPI
 builder.Services.AddOpenApi();
 
-// Configurar conexión de la base de datos con postgreSQL
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// Conexión PostgreSQL
+var connectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Configurar Identity con la clase Usuario
+// Identity
 builder.Services
     .AddIdentity<Usuario, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-var app = builder.Build();
+var jwtKey = builder.Configuration["Jwt:Key"];
 
-// Inicializar roles en la base de datos
-using (var scope = app.Services.CreateScope())
+if (string.IsNullOrEmpty(jwtKey))
 {
-    await DbInitializer.CrearRolesAsync(scope.ServiceProvider);
+    throw new InvalidOperationException(
+        "No se ha configurado la clave JWT.");
 }
 
-// Configure the HTTP request pipeline.
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme =
+            JwtBearerDefaults.AuthenticationScheme;
+
+        options.DefaultChallengeScheme =
+            JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+
+                ValidIssuer =
+                    builder.Configuration["Jwt:Issuer"],
+
+                ValidAudience =
+                    builder.Configuration["Jwt:Audience"],
+
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtKey))
+            };
+    });
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<MovimientoService>();
+
+var app = builder.Build();
+
+// OpenAPI + Scalar solo en desarrollo
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
+}
+
+// Inicializar roles
+using (var scope = app.Services.CreateScope())
+{
+    await DbInitializer.InicializarAsync(scope.ServiceProvider);
 }
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+// Para Identity
+app.UseAuthentication();
+app.UseAuthorization();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+// Mapear controladores
+app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
-

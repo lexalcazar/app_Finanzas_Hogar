@@ -1,4 +1,5 @@
 // Modelo de la entidad Categoria
+namespace app_Fh_back.Models;
 public class Categoria
 {
     public int Id { get; set; }

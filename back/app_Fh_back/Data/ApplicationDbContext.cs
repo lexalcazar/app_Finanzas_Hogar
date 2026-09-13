@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-//using app_Fh_back.Models;
+using app_Fh_back.Models;
 namespace app_Fh_back.Data;
 
 public class ApplicationDbContext : IdentityDbContext<Usuario>

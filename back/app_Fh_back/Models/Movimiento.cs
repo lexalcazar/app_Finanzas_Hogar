@@ -1,5 +1,5 @@
 // Modelo Movimiento
-
+namespace app_Fh_back.Models;
 public class Movimiento
 {
     // Primary key

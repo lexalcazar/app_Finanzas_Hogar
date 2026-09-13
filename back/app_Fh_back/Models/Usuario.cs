@@ -1,5 +1,5 @@
 // Modelo Usuario
-
+namespace app_Fh_back.Models;
 using Microsoft.AspNetCore.Identity;
 
 public class Usuario : IdentityUser
