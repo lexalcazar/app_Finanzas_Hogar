@@ -38,9 +38,20 @@ Base de datos del backend:
 
 ## 3. Ubicación de los proyectos
 
-Estructura general:
+Raíz de trabajo SDD:
+/front
 
-```text
-app_Finanzas_Hogar/
-│
-```
+OpenSpec:
+/front/openspec
+
+OpenCode:
+/front/opencode
+
+Proyecto Angular:
+/front/app_Fh_front
+
+Todo código Angular debe crearse o modificarse exclusivamente dentro de:
+
+/front/app_Fh_front
+
+No crear componentes, servicios, modelos ni archivos Angular directamente en /front.

@@ -59,7 +59,8 @@
               "buildTarget": "app_Fh_front:build:production"
             },
             "development": {
-              "buildTarget": "app_Fh_front:build:development"
+              "buildTarget": "app_Fh_front:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

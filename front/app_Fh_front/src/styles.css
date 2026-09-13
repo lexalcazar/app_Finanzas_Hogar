@@ -1,3 +1,54 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+:root {
+  color: #17211c;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #edf2ed;
+}
+
+* { box-sizing: border-box; }
+
+body { margin: 0; }
+
+.auth-page {
+  align-items: center;
+  background: linear-gradient(145deg, #dce9dc 0%, #f8f5ec 58%, #e3efe8 100%);
+  display: flex;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 1.5rem;
+}
+
+.auth-card {
+  background: #fffefa;
+  border: 1px solid #d3ddd4;
+  border-radius: 1.25rem;
+  box-shadow: 0 1.25rem 3.75rem rgba(31, 55, 38, 0.12);
+  max-width: 28rem;
+  padding: 2.25rem;
+  width: 100%;
+}
+
+.auth-eyebrow { color: #397050; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.09em; margin: 0 0 0.7rem; text-transform: uppercase; }
+.auth-card h1 { font-family: Georgia, 'Times New Roman', serif; font-size: 2.1rem; margin: 0; }
+.auth-intro { color: #56635a; line-height: 1.5; margin: 0.7rem 0 1.75rem; }
+
+.auth-card form { display: grid; gap: 0.5rem; }
+.auth-card label { font-size: 0.9rem; font-weight: 700; margin-top: 0.65rem; }
+.auth-card input { background: #fff; border: 1px solid #afbeb1; border-radius: 0.45rem; font: inherit; min-height: 2.75rem; padding: 0.65rem 0.75rem; width: 100%; }
+.auth-card input:focus { border-color: #286340; box-shadow: 0 0 0 3px rgba(40, 99, 64, 0.18); outline: 0; }
+.field-error { color: #a32424; font-size: 0.82rem; }
+
+.auth-card button { background: #286340; border: 0; border-radius: 0.45rem; color: #fff; cursor: pointer; font: inherit; font-weight: 700; margin-top: 1rem; min-height: 2.9rem; padding: 0.65rem 1rem; }
+.auth-card button:hover:not(:disabled) { background: #1d4b30; }
+.auth-card button:disabled { cursor: wait; opacity: 0.65; }
+.auth-footer { color: #56635a; font-size: 0.9rem; margin: 1.5rem 0 0; text-align: center; }
+.auth-card a { color: #1d5a3a; font-weight: 700; }
+.auth-message { border-radius: 0.45rem; margin: 0 0 1rem; padding: 0.75rem; }
+.auth-message--success { background: #e4f3e7; color: #1d5a3a; }
+.auth-message--error { background: #fae8e6; color: #8d2222; }
+
+@media (max-width: 30rem) {
+  .auth-page { padding: 0.75rem; }
+  .auth-card { border-radius: 0.85rem; padding: 1.5rem; }
+}
