@@ -10,14 +10,14 @@ El sistema SHALL ofrecer una ruta pública de inicio de sesión donde el usuario
 
 El formulario MUST validar ambos campos antes de enviar la solicitud y MUST enviar las credenciales a `POST /api/Auth/login`.
 
-Cuando la API responda correctamente con un token, el sistema MUST conservarlo durante la sesión actual del navegador para utilizarlo en posteriores solicitudes autenticadas y MUST informar visualmente de que la autenticación se ha completado, sin navegar a una página de negocio inexistente.
+Cuando la API responda correctamente con un token, el sistema MUST conservarlo durante la sesión actual del navegador para utilizarlo en posteriores solicitudes autenticadas y MUST navegar al usuario a `/home`.
 
 Cuando la autenticación falle o la solicitud no pueda completarse, el sistema MUST mostrar un mensaje comprensible sin exponer detalles técnicos y MUST NOT conservar un token procedente de la operación fallida.
 
 #### Scenario: Inicio de sesión exitoso
 
 * **WHEN** un usuario envía un correo electrónico y una contraseña válidos y la API responde correctamente con un token
-* **THEN** el sistema conserva el token durante la sesión actual del navegador e informa de que la autenticación se ha completado
+* **THEN** el sistema conserva el token durante la sesión actual del navegador y navega a `/home`
 
 #### Scenario: Credenciales rechazadas
 

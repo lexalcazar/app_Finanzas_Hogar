@@ -48,6 +48,31 @@ body { margin: 0; }
 .auth-message--success { background: #e4f3e7; color: #1d5a3a; }
 .auth-message--error { background: #fae8e6; color: #8d2222; }
 
+.app-page { background: linear-gradient(145deg, #dce9dc 0%, #f8f5ec 58%, #e3efe8 100%); min-height: 100dvh; padding: 2rem 1.5rem; }
+.app-panel { background: #fffefa; border: 1px solid #d3ddd4; border-radius: 1.25rem; box-shadow: 0 1.25rem 3.75rem rgba(31, 55, 38, 0.12); margin: 0 auto; max-width: 54rem; padding: 2.25rem; }
+.app-panel h1 { font-family: Georgia, 'Times New Roman', serif; font-size: 2.1rem; margin: 0.3rem 0 0.75rem; }
+.app-panel > p { color: #56635a; line-height: 1.5; }
+.home-panel { max-width: 38rem; }
+.primary-link { background: #286340; border-radius: 0.45rem; color: #fff; display: inline-block; font-weight: 700; margin-top: 1rem; padding: 0.8rem 1rem; text-decoration: none; }
+.primary-link:hover { background: #1d4b30; }
+.back-link { color: #1d5a3a; display: inline-block; font-weight: 700; margin-bottom: 1.5rem; }
+.page-state { background: #edf2ed; border-radius: 0.45rem; color: #405447; margin: 1.5rem 0 0; padding: 1rem; }
+.movements-list { display: grid; gap: 0.75rem; margin-top: 1.5rem; }
+.movement-item { align-items: center; border: 1px solid #d3ddd4; border-radius: 0.7rem; display: flex; justify-content: space-between; padding: 1rem; }
+.movement-item h2 { font-size: 1rem; margin: 0; }
+.movement-item p { color: #56635a; font-size: 0.9rem; margin: 0.35rem 0 0; }
+.movement-amount { color: #9a302b; text-align: right; }
+.movement-amount--income { color: #1d6a3c; }
+.movement-amount span, .movement-amount strong { display: block; }
+.movement-amount span { font-size: 0.8rem; }
+
+@media (max-width: 30rem) {
+  .app-page { padding: 0.75rem; }
+  .app-panel { border-radius: 0.85rem; padding: 1.5rem; }
+  .movement-item { align-items: flex-start; flex-direction: column; gap: 0.75rem; }
+  .movement-amount { text-align: left; }
+}
+
 @media (max-width: 30rem) {
   .auth-page { padding: 0.75rem; }
   .auth-card { border-radius: 0.85rem; padding: 1.5rem; }

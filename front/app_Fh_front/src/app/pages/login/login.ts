@@ -12,6 +12,7 @@ import { AuthService } from '../../services/auth.service';
 export class Login {
   private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   protected readonly isSubmitting = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(
@@ -36,7 +37,7 @@ export class Login {
     this.authService.login(this.form.getRawValue()).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.successMessage.set('Sesión iniciada correctamente.');
+        this.router.navigate(['/home']);
       },
       error: (error: HttpErrorResponse) => {
         this.isSubmitting.set(false);

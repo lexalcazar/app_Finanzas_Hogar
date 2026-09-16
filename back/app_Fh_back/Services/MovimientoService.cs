@@ -13,6 +13,7 @@ public class MovimientoService
         _context = context;
     }
 
+    // GET: api/Movimientos
     public async Task<List<MovimientoResponseDto>> ObtenerTodosAsync(
         string usuarioId)
     {

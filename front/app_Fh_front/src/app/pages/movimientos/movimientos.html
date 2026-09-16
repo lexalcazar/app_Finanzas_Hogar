@@ -1,0 +1,30 @@
+<main class="app-page">
+  <section class="app-panel movements-panel" aria-labelledby="movimientos-title">
+    <a class="back-link" routerLink="/home">Volver a inicio</a>
+    <p class="auth-eyebrow">Movimientos</p>
+    <h1 id="movimientos-title">Tu actividad reciente</h1>
+
+    @if (isLoading()) {
+      <p class="page-state" role="status">Cargando movimientos...</p>
+    } @else if (errorMessage(); as message) {
+      <p class="auth-message auth-message--error" role="alert">{{ message }}</p>
+    } @else if (movimientos().length === 0) {
+      <p class="page-state">Aún no tienes movimientos para mostrar.</p>
+    } @else {
+      <div class="movements-list">
+        @for (movimiento of movimientos(); track movimiento.id) {
+          <article class="movement-item">
+            <div>
+              <h2>{{ movimiento.descripcion || movimiento.categoria || 'Movimiento sin descripción' }}</h2>
+              <p>{{ movimiento.categoria || 'Sin categoría' }} · {{ movimiento.fecha | date: 'dd/MM/yyyy' }}</p>
+            </div>
+            <div class="movement-amount" [class.movement-amount--income]="movimiento.tipo === 1">
+              <span>{{ getTipo(movimiento.tipo) }}</span>
+              <strong>{{ movimiento.cantidad | number: '1.2-2' }}</strong>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+</main>

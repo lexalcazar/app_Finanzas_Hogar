@@ -17,7 +17,7 @@ public class MovimientosController : ControllerBase
     {
         _service = service;
     }
-
+    // GET: api/Movimientos
     [HttpGet]
     public async Task<ActionResult<List<MovimientoResponseDto>>> ObtenerTodos()
     {
