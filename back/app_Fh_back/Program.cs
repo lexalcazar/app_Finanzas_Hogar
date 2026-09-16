@@ -72,6 +72,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<MovimientoService>();
+builder.Services.AddScoped<CategoriaService>();
 
 var app = builder.Build();
 
