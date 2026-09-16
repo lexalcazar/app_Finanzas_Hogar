@@ -17,5 +17,8 @@ describe('application routes', () => {
 
     await router.navigateByUrl('/movimientos');
     expect(router.url).toBe('/login');
+
+    await router.navigateByUrl('/movimientos/nuevo');
+    expect(router.url).toBe('/login');
   });
 });

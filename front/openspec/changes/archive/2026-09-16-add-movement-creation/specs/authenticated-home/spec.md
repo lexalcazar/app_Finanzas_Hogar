@@ -1,8 +1,4 @@
-## Purpose
-
-Ofrecer a los usuarios autenticados una página principal segura desde la que acceder al primer flujo de consulta de movimientos de la aplicación.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Página principal autenticada
 El sistema SHALL ofrecer la ruta `/home` exclusivamente a usuarios con una sesión autenticada. La página MUST presentar opciones claras para acceder al listado de movimientos y al formulario de creación de movimientos. Si un usuario sin sesión intenta acceder a `/home`, el sistema MUST redirigirlo a `/login`.

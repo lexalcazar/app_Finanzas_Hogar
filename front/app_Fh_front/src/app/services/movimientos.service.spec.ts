@@ -25,4 +25,12 @@ describe('MovimientosService', () => {
     expect(request.request.params.keys()).toEqual([]);
     request.flush([]);
   });
+
+  it('creates a movement without user or type fields', () => {
+    service.create({ cantidad: 20, descripcion: null, fecha: '2026-09-16', categoriaId: 1 }).subscribe();
+    const request = httpTesting.expectOne('/api/Movimientos');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ cantidad: 20, descripcion: null, fecha: '2026-09-16', categoriaId: 1 });
+    request.flush({});
+  });
 });

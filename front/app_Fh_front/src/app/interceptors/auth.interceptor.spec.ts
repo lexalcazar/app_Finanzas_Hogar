@@ -32,6 +32,21 @@ describe('authInterceptor', () => {
     request.flush({});
   });
 
+  it('adds the token to category loading and movement creation requests', () => {
+    authService.login({ email: 'ana@example.com', password: 'secret' }).subscribe();
+    httpTesting.expectOne('/api/Auth/login').flush({ token: 'jwt-token' });
+
+    http.get('/api/Categorias').subscribe();
+    const categoriesRequest = httpTesting.expectOne('/api/Categorias');
+    expect(categoriesRequest.request.headers.get('Authorization')).toBe('Bearer jwt-token');
+    categoriesRequest.flush([]);
+
+    http.post('/api/Movimientos', { cantidad: 20, descripcion: null, fecha: '2026-09-16', categoriaId: 1 }).subscribe();
+    const creationRequest = httpTesting.expectOne('/api/Movimientos');
+    expect(creationRequest.request.headers.get('Authorization')).toBe('Bearer jwt-token');
+    creationRequest.flush({});
+  });
+
   it('does not add the token to public or external requests', () => {
     authService.login({ email: 'ana@example.com', password: 'secret' }).subscribe();
     const loginRequest = httpTesting.expectOne('/api/Auth/login');

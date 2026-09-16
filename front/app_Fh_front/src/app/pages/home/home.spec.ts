@@ -18,4 +18,11 @@ describe('Home', () => {
 
     expect(router.serializeUrl(link.urlTree)).toBe('/movimientos');
   });
+
+  it('provides navigation to movement creation', () => {
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    const router = TestBed.inject(Router); const fixture = TestBed.createComponent(Home); fixture.detectChanges();
+    const links = fixture.debugElement.queryAll(By.directive(RouterLink)).map(item => item.injector.get(RouterLink));
+    expect(links.some(link => link.urlTree !== null && router.serializeUrl(link.urlTree) === '/movimientos/nuevo')).toBe(true);
+  });
 });

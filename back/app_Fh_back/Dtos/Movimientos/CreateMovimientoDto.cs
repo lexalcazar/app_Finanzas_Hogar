@@ -1,11 +1,11 @@
-using app_Fh_back.Models;
+
 namespace app_Fh_back.Dtos.Movimientos;
 
 using System.ComponentModel.DataAnnotations;
 
 public class CreateMovimientoDto
 {
-    [Range(typeof(decimal), "0.01", "999999999")]
+    [Range(typeof(decimal), "0.01", "999999999",ParseLimitsInInvariantCulture = true)]
     public decimal Cantidad { get; set; }
 
     [StringLength(250)]
