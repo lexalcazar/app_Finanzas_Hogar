@@ -69,4 +69,27 @@ describe('AuthService', () => {
 
     expect(service.getToken()).toBeNull();
   });
+
+  it('gets a UTF-8 display name from the JWT payload only for presentation', () => {
+    const payload = btoa(unescape(encodeURIComponent(JSON.stringify({ 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name': 'María' })))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    sessionStorage.setItem('fh.auth-token', `header.${payload}.signature`);
+
+    expect(service.getDisplayName()).toBe('María');
+  });
+
+  it('returns null when the token is absent, malformed, or missing its name claim', () => {
+    expect(service.getDisplayName()).toBeNull();
+    sessionStorage.setItem('fh.auth-token', 'not-a-jwt');
+    expect(service.getDisplayName()).toBeNull();
+    sessionStorage.setItem('fh.auth-token', 'header.eyJzdWIiOiIxIn0.signature');
+    expect(service.getDisplayName()).toBeNull();
+  });
+
+  it('clears the stored token when logging out without an HTTP request', () => {
+    sessionStorage.setItem('fh.auth-token', 'jwt-token');
+
+    service.logout();
+
+    expect(service.getToken()).toBeNull();
+  });
 });

@@ -57,4 +57,16 @@ describe('authentication pages', () => {
     expect(httpTesting.match('/api/Auth/register')).toEqual([]);
     expect(fixture.nativeElement.querySelector('.field-error')).not.toBeNull();
   });
+
+  it('keeps public authentication pages free of the authenticated navigation', () => {
+    const loginFixture = TestBed.createComponent(Login);
+    const registerFixture = TestBed.createComponent(Register);
+    loginFixture.detectChanges();
+    registerFixture.detectChanges();
+
+    expect(loginFixture.nativeElement.querySelector('.auth-page .auth-card')).not.toBeNull();
+    expect(registerFixture.nativeElement.querySelector('.auth-page .auth-card')).not.toBeNull();
+    expect(loginFixture.nativeElement.querySelector('app-authenticated-nav')).toBeNull();
+    expect(registerFixture.nativeElement.querySelector('app-authenticated-nav')).toBeNull();
+  });
 });

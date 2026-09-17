@@ -572,3 +572,35 @@ En caso de conflicto debe priorizarse:
 7. Rendimiento cuando realmente sea relevante.
 
 La solución más sofisticada no será considerada automáticamente la mejor.
+
+## 31. Identidad visual
+
+Toda la aplicación debe mantener una identidad visual coherente.
+
+La paleta principal estará basada en:
+
+- blanco;
+- negro;
+- gris oscuro;
+- gris medio;
+- gris claro.
+
+Las páginas nuevas y las modificaciones de páginas existentes deberán respetar automáticamente esta identidad visual.
+
+La paleta compartida debe centralizarse mediante variables CSS globales en `app_Fh_front/src/styles.css`, evitando valores de identidad duplicados por página.
+
+Se priorizará:
+
+- diseño limpio y minimalista;
+- fondos claros;
+- tarjetas blancas;
+- bordes y elementos secundarios en tonos grises;
+- texto principal negro o gris oscuro;
+- buen contraste;
+- estados `hover` y `focus` visibles;
+- diseño responsive;
+- iconografía coherente mediante SVG o recursos existentes.
+
+Los colores distintos de la paleta neutra podrán utilizarse cuando tengan un significado funcional o semántico claro, por ejemplo para distinguir ingresos, gastos, errores, avisos o estados de éxito.
+
+No deberá crearse una feature OpenSpec independiente únicamente para adaptar una nueva pantalla al estilo visual general del proyecto. La coherencia visual forma parte de la definición normal de terminado de cualquier página o feature.

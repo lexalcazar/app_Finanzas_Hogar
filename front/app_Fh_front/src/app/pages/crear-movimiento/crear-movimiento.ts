@@ -1,10 +1,11 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AuthenticatedNav } from '../../components/authenticated-nav/authenticated-nav';
 import { Categoria } from '../../models/categoria';
 import { CategoriasService } from '../../services/categorias.service';
 import { MovimientosService } from '../../services/movimientos.service';
-@Component({ selector: 'app-crear-movimiento', imports: [ReactiveFormsModule, RouterLink], templateUrl: './crear-movimiento.html' })
+@Component({ selector: 'app-crear-movimiento', imports: [AuthenticatedNav, ReactiveFormsModule, RouterLink], templateUrl: './crear-movimiento.html' })
 export class CrearMovimiento implements OnInit {
   private readonly categoriasService = inject(CategoriasService); private readonly movimientosService = inject(MovimientosService); private readonly router = inject(Router);
   protected readonly categorias = signal<Categoria[]>([]); protected readonly isLoadingCategories = signal(true); protected readonly isSubmitting = signal(false); protected readonly errorMessage = signal<string | null>(null);

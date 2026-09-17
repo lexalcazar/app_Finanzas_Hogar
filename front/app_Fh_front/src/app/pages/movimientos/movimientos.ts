@@ -1,12 +1,13 @@
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AuthenticatedNav } from '../../components/authenticated-nav/authenticated-nav';
 import { Movimiento } from '../../models/movimiento';
 import { MovimientosService } from '../../services/movimientos.service';
 
 @Component({
   selector: 'app-movimientos',
-  imports: [DatePipe, DecimalPipe, RouterLink],
+  imports: [AuthenticatedNav, DatePipe, DecimalPipe, RouterLink],
   templateUrl: './movimientos.html',
 })
 export class Movimientos implements OnInit {
@@ -29,6 +30,6 @@ export class Movimientos implements OnInit {
   }
 
   protected getTipo(tipo: Movimiento['tipo']): string {
-    return tipo === 1 ? 'Ingreso' : 'Egreso';
+    return tipo === 1 ? 'Ingreso' : 'Gasto';
   }
 }
