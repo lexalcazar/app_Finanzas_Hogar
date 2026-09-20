@@ -20,6 +20,9 @@ describe('application routes', () => {
 
     await router.navigateByUrl('/movimientos/nuevo');
     expect(router.url).toBe('/login');
+
+    await router.navigateByUrl('/resumen');
+    expect(router.url).toBe('/login');
   });
 
   it('redirects protected routes to login after logout removes the token', async () => {

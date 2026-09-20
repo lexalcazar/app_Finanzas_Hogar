@@ -15,12 +15,49 @@ public class MovimientoService
     }
 
     // GET: api/Movimientos
-    public async Task<List<MovimientoResponseDto>> ObtenerTodosAsync(
-        string usuarioId)
+  public async Task<List<MovimientoResponseDto>> ObtenerTodosAsync(
+        string usuarioId,
+        FiltroMovimientosDto filtro)
     {
-        return await _context.Movimientos
+        var query = _context.Movimientos
             .AsNoTracking()
             .Where(m => m.UsuarioId == usuarioId)
+            .AsQueryable();
+
+        if (filtro.FechaDesde.HasValue)
+        {
+            query = query.Where(m =>
+                m.Fecha >= filtro.FechaDesde.Value);
+        }
+
+        if (filtro.FechaHasta.HasValue)
+        {
+            query = query.Where(m =>
+                m.Fecha <= filtro.FechaHasta.Value);
+        }
+
+        if (filtro.Tipo.HasValue)
+        {
+            query = query.Where(m =>
+                m.Tipo == filtro.Tipo.Value);
+        }
+
+        if (filtro.CategoriaId.HasValue)
+        {
+            query = query.Where(m =>
+                m.CategoriaId == filtro.CategoriaId.Value);
+        }
+        
+        if (!string.IsNullOrWhiteSpace(filtro.Busqueda))
+        {
+            var texto = filtro.Busqueda.Trim();
+
+            query = query.Where(m =>
+                m.Descripcion != null &&
+                EF.Functions.ILike(m.Descripcion, $"%{texto}%"));
+        }
+
+        return await query
             .OrderByDescending(m => m.Fecha)
             .Select(m => new MovimientoResponseDto
             {
@@ -157,5 +194,33 @@ public class MovimientoService
 
         return true;
     }
+
+    // GET: api/Movimientos/resumen
+        public async Task<ResumenMovimientosDto> ObtenerResumenAsync(
+        string usuarioId,
+        DateOnly fechaHasta)
+    {
+        var movimientos = _context.Movimientos
+            .Where(m =>
+                m.UsuarioId == usuarioId &&
+                m.Fecha <= fechaHasta);
+
+        var totalIngresos = await movimientos
+            .Where(m => m.Tipo == TipoMovimiento.Ingreso)
+            .SumAsync(m => m.Cantidad);
+
+        var totalGastos = await movimientos
+            .Where(m => m.Tipo == TipoMovimiento.Egreso)
+            .SumAsync(m => m.Cantidad);
+
+        return new ResumenMovimientosDto
+        {
+            FechaCalculo = fechaHasta,
+            TotalIngresos = totalIngresos,
+            TotalGastos = totalGastos,
+            Saldo = totalIngresos - totalGastos
+        };
+    }
 }
+
 

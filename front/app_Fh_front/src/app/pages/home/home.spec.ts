@@ -45,6 +45,15 @@ describe('Home', () => {
     expect(fixture.nativeElement.textContent).toContain('Bienvenido');
     expect(fixture.nativeElement.textContent).toContain('Mis movimientos');
     expect(fixture.nativeElement.textContent).toContain('Crear movimiento');
-    expect(fixture.debugElement.queryAll(By.css('.home-action-card')).length).toBe(2);
+    expect(fixture.debugElement.queryAll(By.css('.home-action-card')).length).toBe(3);
+    expect(fixture.nativeElement.textContent).toContain('Resumen financiero');
+    expect(fixture.nativeElement.textContent).not.toContain('Búsqueda avanzada');
+  });
+
+  it('provides navigation to the financial summary', () => {
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideRouter([])] });
+    const router = TestBed.inject(Router); const fixture = TestBed.createComponent(Home); fixture.detectChanges();
+    const links = fixture.debugElement.queryAll(By.directive(RouterLink)).map(item => item.injector.get(RouterLink));
+    expect(links.some(link => link.urlTree !== null && router.serializeUrl(link.urlTree) === '/resumen')).toBe(true);
   });
 });

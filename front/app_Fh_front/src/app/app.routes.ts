@@ -5,6 +5,7 @@ import { CrearMovimiento } from './pages/crear-movimiento/crear-movimiento';
 import { Login } from './pages/login/login';
 import { Movimientos } from './pages/movimientos/movimientos';
 import { Register } from './pages/register/register';
+import { Resumen } from './pages/resumen/resumen';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -13,5 +14,6 @@ export const routes: Routes = [
   { path: 'home', component: Home, canActivate: [authGuard] },
   { path: 'movimientos', component: Movimientos, canActivate: [authGuard] },
   { path: 'movimientos/nuevo', component: CrearMovimiento, canActivate: [authGuard] },
+  { path: 'resumen', component: Resumen, canActivate: [authGuard] },
   { path: '**', redirectTo: 'login' },
 ];

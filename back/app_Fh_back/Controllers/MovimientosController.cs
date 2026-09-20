@@ -20,7 +20,8 @@ public class MovimientosController : ControllerBase
     }
     // GET: api/Movimientos
     [HttpGet]
-    public async Task<ActionResult<List<MovimientoResponseDto>>> ObtenerTodos()
+    public async Task<ActionResult<List<MovimientoResponseDto>>> ObtenerTodos(
+        [FromQuery] FiltroMovimientosDto filtro)
     {
         var usuarioId =
             User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -29,9 +30,20 @@ public class MovimientosController : ControllerBase
         {
             return Unauthorized();
         }
+    
+
+        if (filtro.FechaDesde.HasValue &&
+            filtro.FechaHasta.HasValue &&
+            filtro.FechaDesde > filtro.FechaHasta)
+        {
+            return BadRequest(new
+            {
+                message = "La fecha desde no puede ser posterior a la fecha hasta"
+            });
+        }
 
         var movimientos =
-            await _service.ObtenerTodosAsync(usuarioId);
+            await _service.ObtenerTodosAsync(usuarioId, filtro);
 
         return Ok(movimientos);
     }
@@ -57,6 +69,7 @@ public class MovimientosController : ControllerBase
                 message = "Movimiento no encontrado"
             });
         }
+    
 
         return Ok(movimiento);
     }
@@ -85,7 +98,7 @@ public class MovimientosController : ControllerBase
         }
     
 
-    return CreatedAtAction(
+        return CreatedAtAction(
         nameof(ObtenerPorId),
         new { id = movimiento.Id },
         movimiento);
@@ -143,6 +156,28 @@ public class MovimientosController : ControllerBase
     
 
         return NoContent();
+    }
+    [HttpGet("resumen")]
+    public async Task<ActionResult<ResumenMovimientosDto>> ObtenerResumen(
+        [FromQuery] DateOnly? fechaHasta)
+        {
+            var usuarioId =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(usuarioId))
+        {
+            return Unauthorized();
+        }
+
+        var fechaCalculo =
+            fechaHasta ?? DateOnly.FromDateTime(DateTime.Today);
+
+        var resumen =
+            await _service.ObtenerResumenAsync(
+                usuarioId,
+                fechaCalculo);
+
+        return Ok(resumen);
     }
 }    
     

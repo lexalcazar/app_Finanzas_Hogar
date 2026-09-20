@@ -4,13 +4,22 @@
     <a class="back-link" routerLink="/home">Volver a inicio</a>
     <p class="auth-eyebrow">Movimientos</p>
     <h1 id="movimientos-title">Tu actividad reciente</h1>
+    <form class="movement-form movement-filters" [formGroup]="filters" (ngSubmit)="applyFilters()">
+      <label for="fecha-desde">Desde</label><input id="fecha-desde" type="date" formControlName="fechaDesde" />
+      <label for="fecha-hasta">Hasta</label><input id="fecha-hasta" type="date" formControlName="fechaHasta" />
+      <label for="tipo">Tipo</label><select id="tipo" formControlName="tipo"><option value="">Todos</option><option value="1">Ingresos</option><option value="2">Gastos</option></select>
+      <label for="categoria">Categoría</label><select id="categoria" formControlName="categoriaId" [disabled]="categoriesError()"><option value="">Todas</option>@for (categoria of categorias(); track categoria.id) { <option [value]="categoria.id">{{ categoria.nombre }}</option> }</select>
+      <label for="busqueda">Buscar</label><input id="busqueda" type="search" formControlName="busqueda" />
+      @if (categoriesError()) { <p class="field-error">No se pudieron cargar las categorías.</p> } @if (filtersError(); as message) { <p class="field-error">{{ message }}</p> }
+      <div><button type="submit">Aplicar filtros</button><button type="button" (click)="clearFilters()">Limpiar filtros</button></div>
+    </form>
 
     @if (isLoading()) {
       <p class="page-state" role="status">Cargando movimientos...</p>
     } @else if (errorMessage(); as message) {
       <p class="auth-message auth-message--error" role="alert">{{ message }}</p>
     } @else if (movimientos().length === 0) {
-      <p class="page-state">Aún no tienes movimientos para mostrar.</p>
+      <p class="page-state">{{ hasFilters() ? 'No hay movimientos que coincidan con los filtros.' : 'Aún no tienes movimientos para mostrar.' }}</p>
     } @else {
       <div class="movements-list">
         @for (movimiento of movimientos(); track movimiento.id) {

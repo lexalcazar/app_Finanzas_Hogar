@@ -73,3 +73,13 @@ Si la consulta falla, el sistema MUST mostrar un mensaje comprensible sin expone
 
 * **WHEN** la solicitud de movimientos falla
 * **THEN** el sistema muestra un mensaje controlado de error sin exponer detalles técnicos
+
+---
+
+### Requirement: Consulta filtrada de movimientos
+
+El listado MUST permitir consultas con filtros soportados por la API y mostrar sólo la respuesta resultante. El frontend MUST NOT filtrar por usuario ni aplicar en memoria filtros que la API recibe.
+
+#### Scenario: Resultado filtrado vacío
+- **WHEN** una consulta filtrada no devuelve movimientos
+- **THEN** el sistema muestra el estado vacío existente

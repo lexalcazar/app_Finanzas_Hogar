@@ -88,6 +88,13 @@ body { margin: 0; }
 .movement-form button:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
 .movement-form button:disabled { opacity: .65; }
 .movement-amount span { font-size: 0.8rem; }
+.movement-filters { border: 1px solid var(--color-border); border-radius: .7rem; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 1rem; }
+.movement-filters > div { display: flex; gap: .75rem; grid-column: 1 / -1; }
+.movement-filters button { margin-top: 0; }
+.movement-filters button[type='button'] { background: var(--color-surface); border: 1px solid var(--color-border); color: var(--color-text); }
+.summary-grid { display: grid; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 1.5rem; }
+.summary-grid p { background: var(--color-bg); border: 1px solid var(--color-border); border-radius: .7rem; color: var(--color-text-secondary); margin: 0; padding: 1rem; }
+.summary-grid strong { color: var(--color-text); display: block; font-size: 1.25rem; margin-top: .4rem; }
 
 .authenticated-nav { align-items: center; background: var(--color-primary); color: var(--color-surface); display: flex; justify-content: space-between; min-height: 4.25rem; padding: 0.75rem max(1.5rem, calc((100% - 72rem) / 2)); }
 .app-brand, .logout-button { align-items: center; border-radius: 0.4rem; color: inherit; display: inline-flex; font: inherit; font-weight: 700; gap: 0.6rem; text-decoration: none; }
@@ -118,6 +125,7 @@ body { margin: 0; }
   .app-panel { border-radius: 0.85rem; padding: 1.5rem; }
   .movement-item { align-items: flex-start; flex-direction: column; gap: 0.75rem; }
   .movement-amount { text-align: left; }
+  .movement-filters, .summary-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 38rem) {

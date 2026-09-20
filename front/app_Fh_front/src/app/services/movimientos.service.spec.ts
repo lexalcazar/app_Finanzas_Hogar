@@ -33,4 +33,32 @@ describe('MovimientosService', () => {
     expect(request.request.body).toEqual({ cantidad: 20, descripcion: null, fecha: '2026-09-16', categoriaId: 1 });
     request.flush({});
   });
+
+  it('omits empty filters and normalizes text searches', () => {
+    service.getAll({ fechaDesde: '', fechaHasta: undefined, busqueda: '   ' }).subscribe();
+    const request = httpTesting.expectOne('/api/movimientos');
+    expect(request.request.params.keys()).toEqual([]);
+    request.flush([]);
+
+    service.getAll({ busqueda: '  mercado  ' }).subscribe();
+    const searchRequest = httpTesting.expectOne(request => request.url === '/api/movimientos' && request.params.get('busqueda') === 'mercado');
+    searchRequest.flush([]);
+  });
+
+  it('sends individual and combined movement filters', () => {
+    service.getAll({ tipo: 1 }).subscribe();
+    httpTesting.expectOne(request => request.params.get('tipo') === '1').flush([]);
+    service.getAll({ tipo: 2, categoriaId: 3, fechaDesde: '2026-09-01', fechaHasta: '2026-09-30', busqueda: 'mercado' }).subscribe();
+    const request = httpTesting.expectOne('/api/movimientos?tipo=2&categoriaId=3&fechaDesde=2026-09-01&fechaHasta=2026-09-30&busqueda=mercado');
+    expect(request.request.params.keys()).toHaveLength(5);
+    request.flush([]);
+  });
+
+  it('requests the financial summary with and without a date', () => {
+    service.getResumen().subscribe();
+    httpTesting.expectOne('/api/Movimientos/resumen').flush({});
+    service.getResumen('2026-09-17').subscribe();
+    const request = httpTesting.expectOne(request => request.url === '/api/Movimientos/resumen' && request.params.get('fechaHasta') === '2026-09-17');
+    request.flush({});
+  });
 });
