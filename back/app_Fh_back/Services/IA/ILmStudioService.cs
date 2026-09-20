@@ -1,6 +1,6 @@
-using app_Finanzas_Hogar.Dtos.IA;
+using app_Fh_back.Dtos.IA;
 
-namespace app_Finanzas_Hogar.Services.IA;
+namespace app_Fh_back.Services.IA;
 
 public interface ILmStudioService
 {

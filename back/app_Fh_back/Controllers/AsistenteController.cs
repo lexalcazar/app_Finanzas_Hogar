@@ -1,33 +1,47 @@
-using app_Finanzas_Hogar.Dtos.IA;
-using app_Finanzas_Hogar.Services.IA;
+using System.Security.Claims;
+using app_Fh_back.Dtos.IA;
+using app_Fh_back.Services.IA;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace app_Finanzas_Hogar.Controllers;
+namespace app_Fh_back.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
 public class AsistenteController : ControllerBase
 {
-    private readonly ILmStudioService _lmStudioService;
+    private readonly IAsistenteService _asistenteService;
 
-    public AsistenteController(ILmStudioService lmStudioService)
+    public AsistenteController(IAsistenteService asistenteService)
     {
-        _lmStudioService = lmStudioService;
+        _asistenteService = asistenteService;
     }
 
     [HttpPost("chat")]
     public async Task<ActionResult<ChatResponseDto>> Chat(
         [FromBody] ChatRequestDto request)
     {
-        if (string.IsNullOrWhiteSpace(request.Mensaje))
+        var usuarioId =
+            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(usuarioId))
         {
-            return BadRequest("El mensaje no puede estar vacío.");
+            return Unauthorized();
         }
 
-        var respuesta = await _lmStudioService
-            .EnviarMensajeAsync(request.Mensaje);
+        if (string.IsNullOrWhiteSpace(request.Mensaje))
+        {
+            return BadRequest(new
+            {
+                message = "El mensaje no puede estar vacío"
+            });
+        }
+
+        var respuesta =
+            await _asistenteService.ProcesarMensajeAsync(
+                usuarioId,
+                request.Mensaje);
 
         return Ok(respuesta);
     }

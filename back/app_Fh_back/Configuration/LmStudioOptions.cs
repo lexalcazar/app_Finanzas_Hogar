@@ -1,4 +1,4 @@
-namespace app_Finanzas_Hogar.Configuration;
+namespace app_Fh_back.Configuration;
 
 public class LmStudioOptions
 {

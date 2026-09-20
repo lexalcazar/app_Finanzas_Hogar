@@ -1,9 +1,9 @@
 using System.Net.Http.Json;
-using app_Finanzas_Hogar.Configuration;
-using app_Finanzas_Hogar.Dtos.IA;
+using app_Fh_back.Configuration;
+using app_Fh_back.Dtos.IA;
 using Microsoft.Extensions.Options;
 
-namespace app_Finanzas_Hogar.Services.IA;
+namespace app_Fh_back.Services.IA;
 
 public class LmStudioService : ILmStudioService
 {

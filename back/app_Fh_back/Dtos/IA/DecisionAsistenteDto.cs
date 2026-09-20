@@ -1,4 +1,4 @@
-namespace app_Finanzas_Hogar.Dtos.IA;
+namespace app_Fh_back.Dtos.IA;
 
 public class DecisionAsistenteDto
 {
@@ -12,4 +12,6 @@ public class ParametrosDecisionDto
     public string? FechaDesde { get; set; }
 
     public string? FechaHasta { get; set; }
+
+    public string? Tipo { get; set; }
 }

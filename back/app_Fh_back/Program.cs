@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using app_Fh_back.Services;
-using app_Finanzas_Hogar.Configuration;
-using app_Finanzas_Hogar.Services.IA;
+using app_Fh_back.Configuration;
+using app_Fh_back.Services.IA;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,6 +75,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<MovimientoService>();
 builder.Services.AddScoped<CategoriaService>();
+builder.Services.AddScoped<IAsistenteService, AsistenteService>();
 // Configuración de LmStudio
 builder.Services.Configure<LmStudioOptions>(
     builder.Configuration.GetSection(LmStudioOptions.SectionName)
