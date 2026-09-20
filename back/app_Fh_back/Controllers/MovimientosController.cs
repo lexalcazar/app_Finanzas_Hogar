@@ -179,5 +179,114 @@ public class MovimientosController : ControllerBase
 
         return Ok(resumen);
     }
+
+    [HttpGet("resumen-por-categoria")]
+    public async Task<ActionResult<List<ResumenPorCategoriaDto>>> ObtenerResumenPorCategoria(
+        [FromQuery] FiltroResumenCategoriaDto filtro)
+    {
+        var usuarioId =
+            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(usuarioId))
+        {
+            return Unauthorized();
+        }
+
+        if (filtro.FechaDesde.HasValue &&
+            filtro.FechaHasta.HasValue &&
+            filtro.FechaDesde > filtro.FechaHasta)
+        {
+            return BadRequest(new
+            {
+                message = "La fecha desde no puede ser posterior a la fecha hasta"
+            });
+        }
+
+        var resumen =
+            await _service.ObtenerResumenPorCategoriaAsync(
+                usuarioId,
+                filtro);
+
+        return Ok(resumen);
+    }
+    // GET: api/Movimientos/evolucion-mensual
+    [HttpGet("evolucion-mensual")]
+    public async Task<ActionResult<List<EvolucionMensualDto>>> ObtenerEvolucionMensual(
+        [FromQuery] DateOnly? fechaDesde,
+        [FromQuery] DateOnly? fechaHasta)
+    {
+        var usuarioId =
+            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(usuarioId))
+        {
+            return Unauthorized();
+        }
+
+        if (!fechaDesde.HasValue || !fechaHasta.HasValue)
+        {
+            return BadRequest(new
+            {
+                message = "fechaDesde y fechaHasta son obligatorias"
+            });
+        }
+
+        if (fechaDesde > fechaHasta)
+        {
+            return BadRequest(new
+            {
+                message = "La fecha desde no puede ser posterior a la fecha hasta"
+            });
+        }
+    
+
+        var evolucion =
+            await _service.ObtenerEvolucionMensualAsync(
+                usuarioId,
+                fechaDesde.Value,
+                fechaHasta.Value);
+
+        return Ok(evolucion);
+    }
+
+    // GET: api/Movimientos/resumen-periodo
+    [HttpGet("resumen-periodo")]
+    public async Task<ActionResult<ResumenPeriodoDto>> ObtenerResumenPeriodo(
+        [FromQuery] DateOnly? fechaDesde,
+        [FromQuery] DateOnly? fechaHasta)
+    {
+        var usuarioId =
+            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(usuarioId))
+        {
+            return Unauthorized();
+        }
+
+        if (!fechaDesde.HasValue || !fechaHasta.HasValue)
+        {
+            return BadRequest(new
+            {
+                message = "fechaDesde y fechaHasta son obligatorias"
+            });
+        }
+
+        if (fechaDesde.Value > fechaHasta.Value)
+        {
+            return BadRequest(new
+            {
+                message = "La fecha desde no puede ser posterior a la fecha hasta"
+            });
+        }
+    
+
+        var resumen =
+            await _service.ObtenerResumenPeriodoAsync(
+                usuarioId,
+                fechaDesde.Value,
+                fechaHasta.Value);
+
+        return Ok(resumen);
+    }
 }    
     

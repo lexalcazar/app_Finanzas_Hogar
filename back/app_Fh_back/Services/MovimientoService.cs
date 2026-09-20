@@ -221,6 +221,134 @@ public class MovimientoService
             Saldo = totalIngresos - totalGastos
         };
     }
+
+    // GET: api/Movimientos/ResumenPorCategorias
+    public async Task<List<ResumenPorCategoriaDto>> ObtenerResumenPorCategoriaAsync(
+        string usuarioId,
+        FiltroResumenCategoriaDto filtro)
+    {
+        var query = _context.Movimientos
+            .AsNoTracking()
+            .Where(m => m.UsuarioId == usuarioId)
+            .AsQueryable();
+
+        if (filtro.FechaDesde.HasValue)
+        {
+            query = query.Where(m =>
+                m.Fecha >= filtro.FechaDesde.Value);
+        
+        }
+
+        if (filtro.FechaHasta.HasValue)
+        {
+            query = query.Where(m =>
+                m.Fecha <= filtro.FechaHasta.Value);
+        }
+
+        if (filtro.Tipo.HasValue)
+        {
+            query = query.Where(m =>
+                m.Tipo == filtro.Tipo.Value);
+        }
+
+    
+
+        return await query
+            .GroupBy(m => new
+            {
+                m.CategoriaId,
+                CategoriaNombre = m.Categoria.Nombre,
+                m.Tipo
+            })
+            .Select(g => new ResumenPorCategoriaDto
+            {
+                CategoriaId = g.Key.CategoriaId,
+                CategoriaNombre = g.Key.CategoriaNombre,
+                Tipo = g.Key.Tipo,
+                Total = g.Sum(m => m.Cantidad)
+            })
+            .OrderByDescending(r => r.Total)
+            .ToListAsync();
+    }
+
+    // GET: api/Movimientos/EvolucionMensual
+    public async Task<List<EvolucionMensualDto>> ObtenerEvolucionMensualAsync(
+        string usuarioId,
+        DateOnly fechaDesde,
+        DateOnly fechaHasta)
+    {
+        return await _context.Movimientos
+            .AsNoTracking()
+            .Where(m =>
+                m.UsuarioId == usuarioId &&
+                m.Fecha >= fechaDesde &&
+                m.Fecha <= fechaHasta)
+            .GroupBy(m => new
+            {
+                Anio = m.Fecha.Year,
+                Mes = m.Fecha.Month
+            })
+            .Select(g => new EvolucionMensualDto
+            {
+                Anio = g.Key.Anio,
+                Mes = g.Key.Mes,
+
+                Ingresos = g.Sum(m =>
+                    m.Tipo == TipoMovimiento.Ingreso
+                        ? m.Cantidad
+                        : 0),
+
+                Gastos = g.Sum(m =>
+                    m.Tipo == TipoMovimiento.Egreso
+                        ? m.Cantidad
+                        : 0),
+
+                Balance =
+                    g.Sum(m =>
+                        m.Tipo == TipoMovimiento.Ingreso
+                            ? m.Cantidad
+                            : 0)
+                    -
+                    g.Sum(m =>
+                        m.Tipo == TipoMovimiento.Egreso
+                            ? m.Cantidad
+                            : 0)
+            })
+            .OrderBy(r => r.Anio)
+            .ThenBy(r => r.Mes)
+            .ToListAsync();
+    }
+
+    // GET: api/Movimientos/ResumenPeriodo
+        public async Task<ResumenPeriodoDto> ObtenerResumenPeriodoAsync(
+        string usuarioId,
+        DateOnly fechaDesde,
+        DateOnly fechaHasta)
+    {
+        var movimientos = _context.Movimientos
+            .AsNoTracking()
+            .Where(m =>
+                m.UsuarioId == usuarioId &&
+                m.Fecha >= fechaDesde &&
+                m.Fecha <= fechaHasta);
+
+        var ingresos = await movimientos
+            .Where(m => m.Tipo == TipoMovimiento.Ingreso)
+        .   SumAsync(m => m.Cantidad);
+
+        var gastos = await movimientos
+            .Where(m => m.Tipo == TipoMovimiento.Egreso)
+            .SumAsync(m => m.Cantidad);
+
+        return new ResumenPeriodoDto
+        {
+            FechaDesde = fechaDesde,
+            FechaHasta = fechaHasta,
+            Ingresos = ingresos,
+            Gastos = gastos,
+            Balance = ingresos - gastos
+        };
+    }
 }
 
 
