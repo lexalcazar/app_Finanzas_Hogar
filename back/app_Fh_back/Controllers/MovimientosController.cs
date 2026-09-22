@@ -103,7 +103,7 @@ public class MovimientosController : ControllerBase
         new { id = movimiento.Id },
         movimiento);
     }
-
+    // PUT: api/Movimientos/{id}
     [HttpPut("{id}")]
     public async Task<ActionResult<MovimientoResponseDto>> Actualizar(
         int id,
@@ -131,7 +131,7 @@ public class MovimientosController : ControllerBase
 
         return Ok(movimiento);
     }
-
+    // DELETE: api/Movimientos/{id}
     [HttpDelete("{id}")]
     public async Task<IActionResult> Eliminar(int id)
     {
@@ -157,6 +157,7 @@ public class MovimientosController : ControllerBase
 
         return NoContent();
     }
+    // GET: api/Movimientos/resumen
     [HttpGet("resumen")]
     public async Task<ActionResult<ResumenMovimientosDto>> ObtenerResumen(
         [FromQuery] DateOnly? fechaHasta)
@@ -179,7 +180,7 @@ public class MovimientosController : ControllerBase
 
         return Ok(resumen);
     }
-
+    // GET: api/Movimientos/resumen-por-categoria
     [HttpGet("resumen-por-categoria")]
     public async Task<ActionResult<List<ResumenPorCategoriaDto>>> ObtenerResumenPorCategoria(
         [FromQuery] FiltroResumenCategoriaDto filtro)
