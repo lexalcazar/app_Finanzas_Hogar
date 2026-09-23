@@ -23,6 +23,9 @@ describe('application routes', () => {
 
     await router.navigateByUrl('/resumen');
     expect(router.url).toBe('/login');
+
+    await router.navigateByUrl('/asistente');
+    expect(router.url).toBe('/login');
   });
 
   it('redirects protected routes to login after logout removes the token', async () => {
@@ -36,5 +39,17 @@ describe('application routes', () => {
     await router.navigateByUrl('/movimientos');
 
     expect(router.url).toBe('/login');
+  });
+
+  it('allows authenticated users to access the assistant route', async () => {
+    sessionStorage.setItem('fh.auth-token', 'jwt-token');
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideRouter(routes), provideLocationMocks()],
+    });
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/asistente');
+
+    expect(router.url).toBe('/asistente');
   });
 });

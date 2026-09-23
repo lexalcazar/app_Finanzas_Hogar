@@ -85,11 +85,13 @@ describe('AuthService', () => {
     expect(service.getDisplayName()).toBeNull();
   });
 
-  it('clears the stored token when logging out without an HTTP request', () => {
+  it('clears the stored token and assistant history when logging out without an HTTP request', () => {
     sessionStorage.setItem('fh.auth-token', 'jwt-token');
+    sessionStorage.setItem('fh.asistente-chat-history', JSON.stringify([{ contenido: 'Consulta', autor: 'usuario' }]));
 
     service.logout();
 
     expect(service.getToken()).toBeNull();
+    expect(sessionStorage.getItem('fh.asistente-chat-history')).toBeNull();
   });
 });

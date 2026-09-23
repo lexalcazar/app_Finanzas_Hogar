@@ -9,6 +9,7 @@ import { RegisterRequest } from '../models/register-request';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private static readonly tokenKey = 'fh.auth-token';
+  private static readonly chatHistoryKey = 'fh.asistente-chat-history';
   private static readonly nameClaim = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name';
   private readonly http = inject(HttpClient);
 
@@ -48,6 +49,7 @@ export class AuthService {
 
   logout(): void {
     this.clearToken();
+    sessionStorage.removeItem(AuthService.chatHistoryKey);
   }
 
   private saveToken(token: string): void {

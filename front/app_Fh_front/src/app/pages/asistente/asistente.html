@@ -1,0 +1,33 @@
+<app-authenticated-nav />
+<main class="app-page assistant-page">
+  <section class="app-panel assistant-panel" aria-labelledby="asistente-title">
+    <p class="auth-eyebrow">Asistente financiero</p>
+    <h1 id="asistente-title">Tu gestor de finanzas</h1>
+    <p>Consulta tus movimientos, ingresos, gastos y resúmenes financieros.</p>
+
+    <div class="assistant-conversation" aria-live="polite" aria-label="Conversación con el asistente">
+      @if (messages().length === 0) {
+        <p class="assistant-empty">Escribe una pregunta para empezar.</p>
+      }
+      @for (chatMessage of messages(); track $index) {
+        <p class="assistant-message" [class.assistant-message--user]="chatMessage.autor === 'usuario'" [class.assistant-message--assistant]="chatMessage.autor === 'asistente'">
+          <span>{{ chatMessage.autor === 'usuario' ? 'Tú' : 'Asistente' }}</span>
+          {{ chatMessage.contenido }}
+        </p>
+      }
+      @if (loading()) {
+        <p class="assistant-loading" role="status">El asistente está procesando tu consulta...</p>
+      }
+    </div>
+
+    @if (error(); as errorMessage) {
+      <p class="auth-message auth-message--error" role="alert">{{ errorMessage }}</p>
+    }
+
+    <form class="assistant-form" (submit)="$event.preventDefault(); send()">
+      <label for="assistant-message">Tu pregunta</label>
+      <textarea id="assistant-message" name="message" [(ngModel)]="message" [disabled]="loading()" placeholder="Ej.: ¿En qué gasté más este mes?" rows="3"></textarea>
+      <button type="submit" [disabled]="loading()">{{ loading() ? 'Procesando...' : 'Enviar consulta' }}</button>
+    </form>
+  </section>
+</main>
