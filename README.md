@@ -1,267 +1,142 @@
 # App Finanzas Hogar
 
-Aplicacion para la gestion de las finanzas personales del hogar. El proyecto se ha iniciado desde cero el **13 de septiembre de 2026** y esta organizado como una solucion separada en frontend, backend y base de datos.
+Aplicación para registrar ingresos y gastos, consultar el balance del hogar y explorar los movimientos con ayuda de un asistente de IA local. El proyecto separa una API REST en ASP.NET Core de una interfaz en Angular; PostgreSQL almacena los datos y LM Studio ejecuta el modelo de lenguaje en el equipo del usuario.
 
-## Estado actual
+## Funcionalidades
 
-Actualmente se ha construido la base tecnica del proyecto:
+- Registro e inicio de sesión con ASP.NET Core Identity y tokens JWT. Roles `User` y `Admin` inicializados en el backend.
+- CRUD de movimientos y categorías. Los movimientos del usuario se consultan mediante la API autenticada.
+- Filtros de movimientos por fechas, tipo, categoría y texto.
+- Resumen mensual, resumen de un período, totales por categoría y evolución mensual de ingresos, gastos y balance.
+- Interfaz Angular con rutas protegidas, formulario reactivo de movimientos, filtros y vistas de resumen.
+- Asistente IA que interpreta preguntas sobre los datos financieros y responde a partir de consultas controladas por el backend. Si no hay datos suficientes, debe indicarlo sin inventar cifras.
+- Documentación interactiva de la API mediante Scalar.
 
-- Backend ASP.NET Core funcionando como API REST.
-- Persistencia configurada con Entity Framework Core y PostgreSQL.
-- Modelo inicial de usuarios, categorias y movimientos.
-- Migraciones de base de datos creadas.
-- Registro e inicio de sesion implementados con ASP.NET Core Identity.
-- Emision de tokens JWT para autenticar las peticiones.
-- Endpoint protegido para consultar los movimientos del usuario autenticado.
-- Frontend Angular inicializado y preparado para continuar el desarrollo.
-- Estructura y reglas de trabajo SDD (Spec-Driven Development) incorporadas mediante OpenSpec.
+## Tecnologías y arquitectura
 
-> **Nota sobre el frontend:** la aplicacion Angular todavia contiene la plantilla inicial generada por Angular CLI. Las pantallas, rutas y servicios de autenticacion del frontend quedan como siguiente etapa; la funcionalidad de registro y login implementada hoy corresponde a la API.
+| Capa | Tecnología |
+|---|---|
+| Interfaz | Angular con componentes standalone, formularios reactivos y HttpClient |
+| API | ASP.NET Core, C# y Entity Framework Core |
+| Autenticación | ASP.NET Core Identity y JWT |
+| Persistencia | PostgreSQL con Npgsql |
+| Asistente local | LM Studio y modelo Qwen 2.5 Instruct mediante API compatible con OpenAI |
+| Documentación de API | Scalar |
 
-## Arquitectura
+```mermaid
+flowchart LR
+    A[Angular] --> B[API ASP.NET Core]
+    B --> C[(PostgreSQL)]
+    B --> D[LM Studio]
+```
+
+La API recibe la identidad del usuario desde el token y ejecuta las consultas a sus movimientos. El modelo no se conecta directamente a PostgreSQL ni recibe el identificador del usuario. Las operaciones que el asistente usa para consultar datos son de solo lectura.
+
+## Organización del proyecto
+
+La parte frontend usa esta estructura:
 
 ```text
-app_Finanzas_Hogar/
-├── back/
-│   └── app_Fh_back/       # API ASP.NET Core
-└── front/
-    ├── app_Fh_front/      # Aplicacion Angular
-    ├── .opencode/         # Comandos y skills para OpenSpec
-    ├── AGENTS.md          # Instrucciones de trabajo del frontend
-    ├── CONSTITUTION.md    # Principios y reglas del proyecto
-    └── openspec/          # Configuracion del proceso SDD
+front/
+├── openspec/          # Especificaciones y cambios del frontend
+├── ...                # Configuración de OpenCode
+└── app_Fh_front/      # Proyecto Angular; aquí se ejecuta npm
 ```
 
-## Tecnologias utilizadas
+El backend es un proyecto ASP.NET Core independiente. Consulta el archivo `.sln` o `.csproj` de tu copia para localizar su directorio exacto. La interfaz consume la API mediante HTTP; en desarrollo se ha configurado el backend en `http://localhost:5240` y un proxy de Angular para las solicitudes `/api`.
 
-### Backend
+## Modelo de datos
 
-- .NET 10
-- ASP.NET Core Web API
-- Entity Framework Core 10
-- PostgreSQL
-- Npgsql Entity Framework Core provider
-- ASP.NET Core Identity
-- JWT Bearer Authentication
-- OpenAPI y Scalar para documentar y probar la API en desarrollo
+Un movimiento incluye `id`, `cantidad` (decimal positiva), `fecha` (`DateOnly`), `descripcion` (máximo 250 caracteres), `categoriaId`, `tipo` y `usuarioId`.
 
-### Frontend
+`tipo` distingue:
 
-- Angular 22
-- TypeScript 6
-- Angular Router
-- Angular Forms
-- RxJS
-- Tailwind CSS 4 mediante PostCSS
-- Vitest a traves del soporte de pruebas de Angular
-- pnpm 12
+- `Ingreso = 1`
+- `Egreso = 2`
 
-## Trabajo realizado el 13/09/2026
+Una categoría incluye `id`, `nombre` y `tipo`.
 
-### 1. Inicializacion del repositorio
+Al crear un movimiento se envían `cantidad`, `fecha`, `categoriaId` y, opcionalmente, `descripcion`. La API asigna el movimiento al usuario autenticado. Para las categorías se recomienda mantener coherente su tipo con el tipo de movimiento.
 
-- Se creo el repositorio y su commit inicial.
-- Se inicializaron los proyectos de backend y frontend.
-- Se configuraron los perfiles de ejecucion del backend y los archivos base de Angular.
-- Se agregaron los archivos de ignorados de Git y la licencia.
+## API
 
-### 2. Creacion del dominio de finanzas
+Salvo registro e inicio de sesión, los endpoints requieren autenticación con `Authorization: Bearer <token>`.
 
-Se definieron los modelos principales:
+| Método | Ruta | Uso |
+|---|---|---|
+| `POST` | `/api/Auth/register` | Registrar usuario (nombre, apellido, email, password) |
+| `POST` | `/api/Auth/login` | Iniciar sesión (email, password); devuelve token |
+| `GET` | `/api/Movimientos` | Listar y filtrar por `fechaDesde`, `fechaHasta`, `tipo`, `categoriaId` y `texto` |
+| `GET` | `/api/Movimientos/{id}` | Consultar un movimiento |
+| `POST` | `/api/Movimientos` | Crear un movimiento |
+| `PUT` | `/api/Movimientos/{id}` | Actualizar un movimiento |
+| `DELETE` | `/api/Movimientos/{id}` | Eliminar un movimiento |
+| `GET` | `/api/Movimientos/resumen-mensual` | Resumen con mes y anio |
+| `GET` | `/api/Movimientos/resumen-por-categoria` | Totales por categoría; `fechaDesde`, `fechaHasta` y `tipo` opcionales |
+| `GET` | `/api/Movimientos/evolucion-mensual` | `anio`, `mes`, `ingresos`, `gastos` y `balance` por mes; requiere `fechaDesde` y `fechaHasta` |
+| `GET` | `/api/Movimientos/resumen-periodo` | `fechaDesde`, `fechaHasta`, `ingresos`, `gastos` y `balance` |
+| `GET` | `/api/Categorias` | Listar categorías, ordenadas por tipo y nombre |
+| `GET` | `/api/Categorias/{id}` | Consultar una categoría |
+| `POST` | `/api/Categorias` | Crear una categoría |
+| `PUT` | `/api/Categorias/{id}` | Actualizar una categoría |
+| `DELETE` | `/api/Categorias/{id}` | Eliminar una categoría |
+| `POST` | `/api/Asistente/chat` | Consultar al asistente en lenguaje natural |
 
-- `Usuario`, basado en `IdentityUser`, con nombre y relacion con sus movimientos.
-- `Categoria`, con nombre, tipo de movimiento y relacion con sus movimientos.
-- `Movimiento`, con cantidad, fecha, descripcion, tipo, categoria y usuario propietario.
-- `TipoMovimiento`, con los valores `Ingreso` y `Egreso`.
+El resumen por categoría devuelve `categoriaId`, `categoriaNombre`, `tipo` y `total`. El endpoint de evolución y los resúmenes permiten construir gráficos sin calcular agregados en el navegador. Para el cuerpo exacto de las solicitudes y respuestas, consulta Scalar en la instancia de la API.
 
-Cada movimiento queda asociado tanto a una categoria como al usuario que lo ha creado. Esto permite filtrar posteriormente la informacion por usuario.
+## Interfaz Angular
 
-### 3. Conexion con PostgreSQL y persistencia
+| Ruta | Función |
+|---|---|
+| `/login` | Inicio de sesión |
+| `/register` | Registro |
+| `/home` | Página principal y acceso a las operaciones |
+| `/movimientos` | Listado, filtros y resumen |
+| `/movimientos/nuevo` | Creación de un movimiento |
 
-- Se creo `ApplicationDbContext` heredando de `IdentityDbContext<Usuario>`.
-- Se registraron los conjuntos `Movimientos` y `Categorias`.
-- Se configuro Entity Framework Core para utilizar PostgreSQL.
-- Se generaron las migraciones:
-  - `20260913114543_InitialCreate`
-  - `20260913120403_AddIdentity`
-- Se incluyeron el snapshot y los archivos auxiliares de las migraciones.
-- Se preparo un inicializador de base de datos para crear los roles `User` y `Admin`.
-- Tambien se dejo preparada la creacion opcional de un usuario administrador a partir de la configuracion.
+Las rutas privadas usan un guard de autenticación. El token se conserva en `sessionStorage` y un interceptor añade el encabezado Bearer a las llamadas `/api`. El formulario valida cantidad positiva, fecha y categoría obligatorias y descripción de hasta 250 caracteres; presenta estados de carga, vacío y error. La pantalla de movimientos consume los datos de la API sin filtrar usuarios en el cliente.
 
-### 4. Registro, login y JWT
+## Puesta en marcha local
 
-Se implemento `AuthController` con los endpoints:
+Requisitos: PostgreSQL, el SDK de .NET correspondiente al `TargetFramework` del proyecto, Node.js y npm. Para usar el asistente también necesitas LM Studio y un modelo local cargado. El backend se ha trabajado con un proyecto `net10.0`: comprueba el `.csproj` antes de elegir el SDK.
 
-| Metodo | Ruta | Descripcion |
-| --- | --- | --- |
-| `POST` | `/api/Auth/register` | Registra un usuario y le asigna el rol `User`. |
-| `POST` | `/api/Auth/login` | Valida el email y la contrasena y devuelve un token JWT. |
+1. Configura PostgreSQL y la cadena de conexión que espera la API en su configuración local. No incluyas credenciales reales en el repositorio.
 
-Ademas:
+2. En el directorio del proyecto backend, restaura dependencias y aplica las migraciones de EF Core existentes:
 
-- Se crearon `RegisterDto` y `LoginDto`.
-- Se integro `UserManager` y `SignInManager` de ASP.NET Core Identity.
-- Se creo `TokenService` para generar tokens con identificador, email, nombre y roles.
-- Los tokens tienen una duracion de dos horas.
-- Se configuro la validacion de issuer, audience, expiracion y firma del JWT.
-- Se establecieron respuestas `401 Unauthorized` para credenciales incorrectas y `400 Bad Request` para errores de validacion o registro.
+   ```bash
+   dotnet restore
+   dotnet ef database update
+   dotnet run
+   ```
 
-### 5. Primer endpoint protegido de movimientos
+   En el entorno de desarrollo utilizado, la API escucha en `http://localhost:5240`. Revisa `launchSettings.json` si tu instalación usa otro puerto.
 
-Se implemento `MovimientosController`:
+3. Para las funciones de IA, inicia LM Studio, carga el modelo configurado y habilita su servidor compatible con OpenAI en `http://localhost:1234/v1/chat/completions`. Durante el desarrollo se ha usado `qwen2.5-1.5b-instruct` en cuantización `Q4_K_M`; el identificador exacto configurado en la API debe coincidir con el modelo cargado.
 
-| Metodo | Ruta | Autenticacion | Descripcion |
-| --- | --- | --- | --- |
-| `GET` | `/api/Movimientos` | JWT obligatoria | Devuelve los movimientos del usuario autenticado, ordenados por fecha descendente. |
+4. Inicia Angular desde `front/app_Fh_front/`:
 
-La logica de consulta se separo en `MovimientoService`. La respuesta utiliza `MovimientoResponseDto` y devuelve la categoria junto con los datos del movimiento.
+   ```bash
+   cd front/app_Fh_front
+   npm install
+   npm start
+   ```
 
-### 6. Preparacion del frontend y del proceso SDD
+   Comprueba que el proxy de desarrollo apunta a `http://localhost:5240` para las llamadas `/api`.
 
-- Se inicializo una aplicacion Angular 22 con Angular CLI.
-- Se configuraron los scripts de desarrollo, compilacion y pruebas.
-- Se habilito Tailwind CSS 4.
-- Se dejo preparada la configuracion base del router y de la aplicacion standalone.
-- Se incorporaron las reglas del proyecto en `AGENTS.md` y `CONSTITUTION.md`.
-- Se configuro OpenSpec para trabajar mediante SDD:
-  1. Definir el cambio.
-  2. Crear la propuesta.
-  3. Especificar requisitos y criterios de aceptacion.
-  4. Dividir el trabajo en tareas.
-  5. Implementar.
-  6. Probar, compilar y validar.
-  7. Archivar el cambio.
-- Se añadieron comandos y skills para explorar, proponer, aplicar, sincronizar y archivar cambios OpenSpec.
+El asistente depende de LM Studio; el registro, los movimientos y los resúmenes de la API se pueden usar por separado.
 
-## Configuracion local
+## Comprobación
 
-### Requisitos
-
-- .NET SDK 10.
-- Node.js compatible con Angular 22.
-- pnpm 12.
-- PostgreSQL.
-
-### Configurar el backend
-
-La configuracion se encuentra en `back/app_Fh_back/appsettings.json`. Antes de ejecutar la API hay que proporcionar:
-
-- `ConnectionStrings:DefaultConnection`: cadena de conexion de PostgreSQL.
-- `Jwt:Key`: clave privada suficientemente larga para firmar los tokens.
-- `Jwt:Issuer`: emisor del token.
-- `Jwt:Audience`: audiencia del token.
-
-La configuracion del administrador inicial es opcional:
-
-- `Admin:Email`
-- `Admin:Password`
-
-Para no guardar credenciales en el repositorio, se recomienda utilizar `appsettings.Development.json`, variables de entorno o User Secrets.
-
-Ejemplo de estructura de conexion:
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=app_finanzas_hogar;Username=postgres;Password=TU_PASSWORD"
-  },
-  "Jwt": {
-    "Key": "CAMBIAR_POR_UNA_CLAVE_SEGURA",
-    "Issuer": "app_Fh_back",
-    "Audience": "app_Fh_front"
-  }
-}
-```
-
-Ejecutar la API:
+Desde `front/app_Fh_front/`:
 
 ```bash
-cd back/app_Fh_back
-dotnet restore
-dotnet run
+npm test
+npm run build
 ```
 
-Perfiles disponibles:
+En la última comprobación registrada del cambio de filtros y resumen del frontend se superaron 45 pruebas y la compilación terminó correctamente. Ese resultado corresponde a aquel estado del proyecto; vuelve a ejecutar los comandos tras cambios posteriores, especialmente al integrar la vista del chat.
 
-- HTTP: `http://localhost:5240`
-- HTTPS: `https://localhost:7142`
+## Estado y próximos pasos
 
-En entorno de desarrollo, la documentacion OpenAPI y Scalar queda disponible a traves de los endpoints configurados por ASP.NET Core.
-
-### Configurar el frontend
-
-```bash
-cd front/app_Fh_front
-pnpm install
-pnpm start
-```
-
-La aplicacion Angular se sirve normalmente en `http://localhost:4200/`.
-
-Comandos disponibles:
-
-```bash
-pnpm start   # Servidor de desarrollo
-pnpm build   # Compilacion
-pnpm test    # Pruebas unitarias
-pnpm run watch
-```
-
-## Endpoints de ejemplo
-
-Registro:
-
-```http
-POST /api/Auth/register
-Content-Type: application/json
-
-{
-  "nombre": "Nombre de usuario",
-  "apellido": "Apellido",
-  "email": "usuario@example.com",
-  "password": "UnaPasswordSegura123!"
-}
-```
-
-Login:
-
-```http
-POST /api/Auth/login
-Content-Type: application/json
-
-{
-  "email": "usuario@example.com",
-  "password": "UnaPasswordSegura123!"
-}
-```
-
-Consulta de movimientos:
-
-```http
-GET /api/Movimientos
-Authorization: Bearer <token>
-```
-
-## Proximos pasos
-
-- Crear las especificaciones OpenSpec de las funcionalidades del frontend.
-- Sustituir la plantilla inicial de Angular por las pantallas de registro y login.
-- Conectar Angular con los endpoints de autenticacion.
-- Guardar y renovar el token de forma segura en el frontend.
-- Añadir rutas protegidas, guards e interceptor HTTP.
-- Implementar altas, bajas y modificaciones de movimientos.
-- Implementar la gestion de categorias.
-- Crear dashboard, resumen mensual y filtros.
-- Añadir pruebas unitarias y de integracion para backend y frontend.
-- Incorporar validaciones, manejo de errores y una configuracion separada por entorno.
-
-## Historial de commits de hoy
-
-| Commit | Mensaje |
-| --- | --- |
-| `e150884` | Initial commit |
-| `c480b05` | proyectos back/front inicializados |
-| `b6a5df4` | Modelos bd creados, sin migraciones |
-| `a88a94b` | Conectada bd y primera migracion hecha |
-| `a148d77` | Login Registro funcionando comienzo SDD en front |
-| `dad5c32` | Agent host session - baseline checkpoint |
+El backend del asistente ya expone `POST /api/Asistente/chat` y se ha probado con preguntas sobre movimientos concretos y resúmenes, incluyendo meses sin datos. La integración de una vista de chat en Angular, sus estados de carga y error, y la representación gráfica de evolución y categorías figuran como próximos pasos según las últimas conversaciones; no se dan aquí por implementados.
